@@ -53,26 +53,32 @@ void setup() {
   mySoftwareSerial.begin(9600);
   Serial.begin(115200);
 
+  initPinModes();
   initDFPlayer();
   initOled();
-
-  display.display();
-  delay(1000); // Pause for 2 seconds
-
-  // Clear the buffer
-  display.clearDisplay();
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
-
+  
   int result = displayMenu();
   Serial.println(result);
+  
   int amountOfReplays = (result * 60) / 20;
   Serial.println(amountOfReplays);
-//playSleepingExercises(amountOfReplays);
+
+  playSleepingExercises(amountOfReplays);
 
   //myDFPlayer.volume(20);  //Set volume value. From 0 to 30
   //myDFPlayer.play(1);  //Play the first mp3
 
+}
+
+void playSleepingExercises(int amountOfReplays){
+
+  myDFPlayer.volume(20);
+    
+  for(int i = 0; i <= amountOfReplays; i++){
+    myDFPlayer.play(1);
+    Serial.println(i);
+    delay(20000);
+  }
 }
 
 void initDFPlayer(){
@@ -96,6 +102,14 @@ void initOled(){
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
     }
+
+    display.display();
+    delay(2000);
+
+     // Clear the buffer
+    display.clearDisplay();
+    display.setTextColor(WHITE);
+    display.setTextSize(1);
 }
 
 void initPinModes(){
@@ -107,14 +121,6 @@ void initPinModes(){
 void loop() {
   
   
-}
-
-void playSleepingExercises(int amountOfReplays){
-  
-  for(int i = 0; i < amountOfReplays; i++){
-    playFirst();
-    delay(20);
-  }
 }
 
 int displayMenu(){
