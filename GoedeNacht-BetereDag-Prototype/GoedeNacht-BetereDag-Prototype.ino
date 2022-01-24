@@ -27,6 +27,8 @@
 #define buttonMinus 11
 #define buttonOk 12
 
+#define vibratePin 2
+
 // Knoppen
 const int BUTTON1 = 11;//Initialize Pin12 with Button +
 const int BUTTON2 = 12;//Initialize Pin11 with Button enter
@@ -50,6 +52,7 @@ void printDetail(uint8_t type, int value);
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
+    
   mySoftwareSerial.begin(9600);
   Serial.begin(115200);
 
@@ -64,10 +67,7 @@ void setup() {
   Serial.println(amountOfReplays);
 
   playSleepingExercises(amountOfReplays);
-
-  //myDFPlayer.volume(20);  //Set volume value. From 0 to 30
-  //myDFPlayer.play(1);  //Play the first mp3
-
+  
 }
 
 void playSleepingExercises(int amountOfReplays){
@@ -77,7 +77,14 @@ void playSleepingExercises(int amountOfReplays){
   for(int i = 0; i <= amountOfReplays; i++){
     myDFPlayer.play(1);
     Serial.println(i);
-    delay(20000);
+
+    delay(1000);
+    digitalWrite(vibratePin, HIGH);
+    delay(3000);
+    digitalWrite(vibratePin, LOW);
+    delay(7000);
+    digitalWrite(vibratePin, HIGH);
+    (8000);
   }
 }
 
@@ -116,6 +123,7 @@ void initPinModes(){
   pinMode(BUTTON1, INPUT);//Define Button1 as input pin
   pinMode(BUTTON2, INPUT);//Define Button2 as input pin
   pinMode(BUTTON3, INPUT);//Define Button3 as input pin
+  pinMode(vibratePin, OUTPUT);
 }
 
 void loop() {
