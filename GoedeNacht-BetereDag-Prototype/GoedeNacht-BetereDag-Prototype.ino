@@ -42,35 +42,45 @@ int lastStateCLK;
 String currentDir ="";
 unsigned long lastButtonPress = 0;
 
-//DFPlayer
-SoftwareSerial mySerial(7, 6);
-DFRobotDFPlayerMini dfPlayer;
+//DfPlayer
+SoftwareSerial mySoftwareSerial(7, 6); // RX, TX
+DFRobotDFPlayerMini myDFPlayer;
+void printDetail(uint8_t type, int value);
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
-
-  // Setup Serial Monitor
-  mySerial.begin(9600);
+  mySoftwareSerial.begin(9600);
   Serial.begin(115200);
- 
 
-  //Knoppen
-  pinMode(BUTTON1, INPUT);//Define Button1 as input pin
-  pinMode(BUTTON2, INPUT);//Define Button2 as input pin
-  pinMode(BUTTON3, INPUT);//Define Button3 as input pin
+  initDFPlayer();
+  initOled();
 
-  //DFPlayer
-  pinMode(6, INPUT);
-  pinMode(7, INPUT);
+  display.display();
+  delay(1000); // Pause for 2 seconds
 
-  
-  
+  // Clear the buffer
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+
+  int result = displayMenu();
+  Serial.println(result);
+  int amountOfReplays = (result * 60) / 20;
+  Serial.println(amountOfReplays);
+//playSleepingExercises(amountOfReplays);
+
+  //myDFPlayer.volume(20);  //Set volume value. From 0 to 30
+  //myDFPlayer.play(1);  //Play the first mp3
+
+}
+
+void initDFPlayer(){
   Serial.println();
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
   
-  if (!dfPlayer.begin(mySerial)) {  //Use softwareSerial to communicate with mp3.
+  if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
     Serial.println(F("Unable to begin:"));
     Serial.println(F("1.Please recheck the connection!"));
     Serial.println(F("2.Please insert the SD card!"));
@@ -79,28 +89,19 @@ void setup() {
     }
   }
   Serial.println(F("DFPlayer Mini online."));
+}
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+void initOled(){
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
-  }
-  
-  display.display();
-  delay(2000); // Pause for 2 seconds
-  
-  // Clear the buffer
-  display.clearDisplay();
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
+    }
+}
 
-  int result = displayMenu();
-  Serial.println(result);
-
-  int amountOfReplays = (result * 60) / 20;
-  Serial.println(amountOfReplays);
-
-  playSleepingExercises(amountOfReplays);
+void initPinModes(){
+  pinMode(BUTTON1, INPUT);//Define Button1 as input pin
+  pinMode(BUTTON2, INPUT);//Define Button2 as input pin
+  pinMode(BUTTON3, INPUT);//Define Button3 as input pin
 }
 
 void loop() {
@@ -188,6 +189,6 @@ Par1, Par2, highByte(checksum), lowByte(checksum), End_Byte};
 //Send the command line to the module
 for (byte k=0; k<10; k++)
 {
-mySerial.write( Command_line[k]);
+mySoftwareSerial.write( Command_line[k]);
 }
 }
