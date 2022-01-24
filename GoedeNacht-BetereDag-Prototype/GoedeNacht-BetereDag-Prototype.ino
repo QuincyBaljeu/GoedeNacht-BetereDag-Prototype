@@ -2,7 +2,9 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "Arduino.h"
 #include "SoftwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
@@ -42,25 +44,47 @@ unsigned long lastButtonPress = 0;
 
 //DFPlayer
 SoftwareSerial mySerial(7, 6);
+DFRobotDFPlayerMini dfPlayer;
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
 
   // Setup Serial Monitor
-  Serial.begin(9600);
+  mySerial.begin(9600);
+  Serial.begin(115200);
+ 
 
   //Knoppen
   pinMode(BUTTON1, INPUT);//Define Button1 as input pin
   pinMode(BUTTON2, INPUT);//Define Button2 as input pin
   pinMode(BUTTON3, INPUT);//Define Button3 as input pin
 
+  //DFPlayer
+  pinMode(6, INPUT);
+  pinMode(7, INPUT);
+
+  
+  
+  Serial.println();
+  Serial.println(F("DFRobot DFPlayer Mini Demo"));
+  Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
+  
+  if (!dfPlayer.begin(mySerial)) {  //Use softwareSerial to communicate with mp3.
+    Serial.println(F("Unable to begin:"));
+    Serial.println(F("1.Please recheck the connection!"));
+    Serial.println(F("2.Please insert the SD card!"));
+    while(true){
+      delay(0); // Code to compatible with ESP8266 watch dog.
+    }
+  }
+  Serial.println(F("DFPlayer Mini online."));
+
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-  
   
   display.display();
   delay(2000); // Pause for 2 seconds
@@ -71,21 +95,25 @@ void setup() {
   display.setTextSize(1);
 
   int result = displayMenu();
- // Serial.println(result);
+  Serial.println(result);
 
-  //int amountOfReplays = (result * 60) / 20;
-  //Serial.println(amountOfReplays);
+  int amountOfReplays = (result * 60) / 20;
+  Serial.println(amountOfReplays);
 
-  //playSleepingExercises(amountOfReplays);
+  playSleepingExercises(amountOfReplays);
 }
 
 void loop() {
-  //BUTTONstate1 = digitalRead(BUTTON1);//Read button1 state
+  
   
 }
 
 void playSleepingExercises(int amountOfReplays){
-  playFirst();
+  
+  for(int i = 0; i < amountOfReplays; i++){
+    playFirst();
+    delay(20);
+  }
 }
 
 int displayMenu(){
