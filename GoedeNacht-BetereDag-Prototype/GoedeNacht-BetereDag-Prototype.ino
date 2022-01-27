@@ -1,5 +1,7 @@
 #include <SPI.h>
 #include <Wire.h>
+#include <Servo.h>
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "Arduino.h"
@@ -30,9 +32,9 @@
 #define vibratePin 2
 
 // Knoppen
-const int BUTTON1 = 11;//Initialize Pin12 with Button +
-const int BUTTON2 = 12;//Initialize Pin11 with Button enter
-const int BUTTON3 = 13;//Initialize Pin7 with Button -
+const int BUTTON1 = 13;//Initialize Pin12 with Button +
+const int BUTTON2 = 11;//Initialize Pin11 with Button enter
+const int BUTTON3 = 12; //Initialize Pin7 with Button -
 
 int BUTTONstate1 = 0; // To read the button1 state
 int BUTTONstate2 = 0;// To read the button2 state
@@ -44,6 +46,8 @@ int lastStateCLK;
 String currentDir ="";
 unsigned long lastButtonPress = 0;
 
+int pos = 0;
+
 //DfPlayer
 SoftwareSerial mySoftwareSerial(7, 6); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
@@ -51,10 +55,14 @@ void printDetail(uint8_t type, int value);
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+Servo myservo; 
+
 void setup() {
     
   mySoftwareSerial.begin(9600);
   Serial.begin(115200);
+
+  myservo.attach(3);
 
   initPinModes();
   initDFPlayer();
@@ -72,19 +80,31 @@ void setup() {
 
 void playSleepingExercises(int amountOfReplays){
 
-  myDFPlayer.volume(20);
+  myDFPlayer.volume(30);
     
   for(int i = 0; i <= amountOfReplays; i++){
     myDFPlayer.play(1);
     Serial.println(i);
 
     delay(1000);
+    
     digitalWrite(vibratePin, HIGH);
+    for (pos = 0; pos <= 90; pos += 1) { // goes from 0 degrees to 180 degrees
+      // in steps of 1 degree
+       myservo.write(pos);              // tell servo to go to position in variable 'pos'
+      delay(15);                       // waits 15ms for the servo to reach the position
+    }
     delay(3000);
+    
     digitalWrite(vibratePin, LOW);
     delay(7000);
+    
     digitalWrite(vibratePin, HIGH);
-    (8000);
+    for (pos = 90; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+      myservo.write(pos);              // tell servo to go to position in variable 'pos'
+      delay(15);                       // waits 15ms for the servo to reach the position
+    }
+    delay(8000);
   }
 }
 
